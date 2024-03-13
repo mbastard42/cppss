@@ -1,2 +1,2 @@
-# cppss
-css for cpp
+# CPPSS: CSS styling in your CPP projects
+

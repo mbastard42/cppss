@@ -1,22 +1,22 @@
-#include "cppss.hpp"
+#include "../inc/cppss.hpp"
 
-CPPSS::CssFile::CssFile() {
+cppss::CssFile::CssFile() {
     
     _path = "";
 }
 
-CPPSS::CssFile::CssFile(const std::string & path) {
+cppss::CssFile::CssFile(const std::string & path) {
     
-    _path = path;
+    open(path);
 }
 
-CPPSS::CssFile::CssFile(const CssFile & file) { *this = file; }
+cppss::CssFile::CssFile(const CssFile & file) { *this = file; }
 
-CPPSS::CssFile::~CssFile() {
+cppss::CssFile::~CssFile() {
     
 }
 
-const CPPSS::CssFile & CPPSS::CssFile::operator=(const CssFile & file) {
+const cppss::CssFile & cppss::CssFile::operator=(const CssFile & file) {
     
     _path = file._path;
     _ids = file._ids;
@@ -25,4 +25,16 @@ const CPPSS::CssFile & CPPSS::CssFile::operator=(const CssFile & file) {
     return *this;
 }
 
-const std::string & CPPSS::CssFile::getPath() const { return _path; }
+void cppss::CssFile::open(const std::string & path) {
+    
+    _path = path;
+}
+
+const std::string & cppss::CssFile::getPath() const { return _path; }
+
+std::ostream & cppss::operator<<(std::ostream & os, const cppss::CssFile & file) {
+    
+    os << "CSS FILE: " << file.getPath() << std::endl;
+    
+    return os;
+}
