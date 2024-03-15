@@ -14,43 +14,38 @@ namespace cppss {
 
         //  VARIABLES
 
-        std::string         _tag, _id, _classes;
-        CssElems            _style;
-        
-        HtmlElem *          _next;
-        HtmlElem *          _prev;
-        HtmlElem *          _child;
-        HtmlElem *          _parent;
+        int                         _bodyWidth, _bodyHeight;
+        HtmlElem                    *_next, *_prev, *_child, *_parent;
+        CssElem                     _style;
+        std::string                 _tag;
+        std::vector<std::string>    _selectors;
 
-        //  METHODS
+        //  COPLIEN FORM
 
         public:     HtmlElem();
         public:     HtmlElem(const HtmlElem & elem);
         public:     HtmlElem(std::string tag, std::string id, std::string classes, std::vector<HtmlElem *> elems = {});
         public:     ~HtmlElem();
 
-        //  OPERATORS
-
         public:     const HtmlElem & operator=(const HtmlElem & elem);
 
-        public:     void    draw(DrawingFunction) const;
+        //  METHODS
 
-        //  SETTERS
+        private:    void    init();
+        public:     void    resize(int width, int height);
+        public:     void    draw(DrawingFunction drawPixel) const;
 
         //  GETTERS
 
-        public:     const std::string & getTag() const;
-        public:     const std::string & getId() const;
-        public:     const std::string & getClasses() const;
+        public:     const HtmlElem *    getNext() const;
+        public:     const HtmlElem *    getPrev() const;
+        public:     const HtmlElem *    getChild() const;
+        public:     const HtmlElem *    getParent() const;
 
-        public:     const HtmlElem * getNext() const;
-        public:     const HtmlElem * getPrev() const;
-        public:     const HtmlElem * getChild() const;
-        public:     const HtmlElem * getParent() const;
+        public:     const std::string &                 getTag() const;
+        public:     const std::vector<std::string> &    getSelectors() const;
     };
     
     std::ostream & operator<<(std::ostream & os, const HtmlElem & elem);
-
-    typedef std::vector<HtmlElem *> Childs;
 
 } // namespace cppss

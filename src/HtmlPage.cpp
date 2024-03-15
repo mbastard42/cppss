@@ -1,103 +1,125 @@
 #include "../inc/cppss.hpp"
 
-cppss::HtmlPage::HtmlPage() {
-
-    _width = 0;
-    _height = 0;
-    _startX = 0;
-    _startY = 0;
-    _hoverX = 0;
-    _hoverY = 0;
-    _drawPixel = nullptr;
-    _head = nullptr;
-}
+cppss::HtmlPage::HtmlPage() { init(); }
 
 cppss::HtmlPage::HtmlPage(int width, int height, DrawingFunction drawingPixelFunction) {
 
-    _width = width;
-    _height = height;
-    _startX = 0;
-    _startY = 0;
-    _hoverX = 0;
-    _hoverY = 0;
-    _drawPixel = drawingPixelFunction;
-    _head = nullptr;
-    passDown(*this);
+    init();
+    size(width, height);
+    setDrawingFunction(drawingPixelFunction);
 }
 
-cppss::HtmlPage::HtmlPage(const HtmlPage & htmlPage) { *this = htmlPage; }
+cppss::HtmlPage::HtmlPage(const HtmlPage & page) { *this = page; }
 
 cppss::HtmlPage::~HtmlPage() {
 
     for (size_t i = 0; i < _elems.size(); i++)
         delete _elems[i];
     _elems.clear();
+    _selectors.clear();
 }
 
-const cppss::HtmlPage & cppss::HtmlPage::operator=(const HtmlPage & htmlPage) {
+const cppss::HtmlPage & cppss::HtmlPage::operator=(const HtmlPage & page) {
 
-    _width = htmlPage._width;
-    _height = htmlPage._height;
-    _ids = htmlPage._ids;
-    _classes = htmlPage._classes;
-    _cssFiles = htmlPage._cssFiles;
-    _drawPixel = htmlPage._drawPixel;
-    _head = htmlPage._head;
-
+    size(page._width, page._height);
+    setDrawingFunction(page._draw);
     return *this;
+}
+
+void cppss::HtmlPage::init() {
+
+    _draw = nullptr;
+    _width = _height = _startX = _startY = _hoverX = _hoverY = 0;
 }
 
 void cppss::HtmlPage::size(int width, int height) {
 
-    _width = width;
-    _height = height;
+    if (_width != width || _height != height) {
+
+        _width = width;
+        _height = height;
+        for (size_t i = 0; i < _elems.size(); i++)
+            _elems[i]->resize(width, height);
+    }
 }
 
-void cppss::HtmlPage::setDrawingFunction(DrawingFunction drawingPixelFunction) {
+void cppss::HtmlPage::setDrawingFunction(DrawingFunction drawingPixelFunction) { _draw = drawingPixelFunction; }
 
-    _drawPixel = drawingPixelFunction;
-    passDown(*this);
-}
+void cppss::HtmlPage::passDown() const {
 
-void cppss::HtmlPage::passDown(const HtmlPage & page) {
+    for (size_t i = 0; i < _elems.size(); i++) {
 
-    (void)page;
+        
+    }
 }
 
 void cppss::HtmlPage::addCssFile(const std::string & path) {
 
-    _cssFiles[path] = CssFile(path);
+    std::ifstream file(path);
+
+    if (file.is_open()) {
+            
+        std::string line, name, params;
+        while (std::getline(file, line)) {
+            
+            while (!line.find(' ') || !line.find('\t'))
+                line.erase(0, 1);
+                
+            if (line.size() && !name.empty())
+                params += line + '\n';
+
+            if (params.empty()) {
+
+                name = line;
+                if (name.find(' ') != std::string::npos)
+                    name.erase(name.find(' '), name.size());
+                if (name.find('\t') != std::string::npos)
+                    name.erase(name.find('\t'), name.size());
+                if (name.find('{') != std::string::npos)
+                    name.erase(name.find('{'), name.size());
+            }
+
+            if (line.find('}') != std::string::npos) {
+                
+                params.erase(params.find('}'), params.size());
+                if (params[params.size() - 1] == '\n')
+                    params.erase(params.size() - 1, 1);
+
+                if (_selectors.find(name) == _selectors.end())
+                    _selectors[name] = CssElem(name, params);
+                else
+                    _selectors[name].merge(CssElem(name, params));
+
+                params.clear();
+                name.clear();
+            }
+        }
+
+        file.close();
+        passDown();
+
+    } else  
+        std::cerr << "cppss::HtmlPage::addFile(" << path << "): Could not open file" << std::endl;
 }
 
-void cppss::HtmlPage::addCssFile(const CssFile & file) {
+void cppss::HtmlPage::addCssElem(const CssElem * elem) {
 
-    _cssFiles[file.getPath()] = file;
-}
+    std::string selector = elem->getSelector();
 
-void cppss::HtmlPage::addCssId(const CssElem & cssId) {
-
-    if (_ids.find(cssId.getName()) == _ids.end())
-        _ids[cssId.getName()] = cssId;
+    if (_selectors.find(selector) == _selectors.end())
+        _selectors[selector] = *elem;
     else
-        _ids[cssId.getName()].merge(cssId);
+        _selectors[selector].merge(*elem);
+
+    passDown();
 }
 
-void cppss::HtmlPage::addCssClass(const CssElem & cssClass) {
+void cppss::HtmlPage::body(HtmlElem * head) { _elems.push_back(new HtmlElem(*head)); }
 
-    if (_classes.find(cssClass.getName()) == _classes.end())
-        _classes[cssClass.getName()] = cssClass;
-    else
-        _classes[cssClass.getName()].merge(cssClass);
-}
-
-void cppss::HtmlPage::body(HtmlElem * head) { _head = head; }
-
-cppss::HtmlElem * cppss::HtmlPage::div(std::string ids, std::string classes, Childs elems) {
+cppss::HtmlElem * cppss::HtmlPage::div(std::string id, std::string classes, std::vector<HtmlElem *> elems) {
     
-    HtmlElem * elem = new HtmlElem("div", ids, classes, elems);
-
-    _elems.push_back(elem);
-    return elem;
+    _elems.push_back(new HtmlElem("div", id, classes, elems));
+    return _elems.back();
 }
 
 void cppss::HtmlPage::scrollUp(int pixels) { _startY -= pixels; }
@@ -111,17 +133,31 @@ void cppss::HtmlPage::hover(int x, int y) {
     _hoverY = y;
 }
 
-void cppss::HtmlPage::click(int x, int y) {
+void cppss::HtmlPage::hold(int x, int y) {
 
     (void)x;
     (void)y;
 }
 
+void cppss::HtmlPage::release(int x, int y) {
+
+    (void)x;
+    (void)y;
+}
+
+void cppss::HtmlPage::click(int x, int y) {
+
+    hold(x, y);
+    release(x, y);
+}
+
 void cppss::HtmlPage::draw() const {
 
-    if (_drawPixel)
+    if (!_draw)
+        std::cerr << "Drawing function not set" << std::endl;
+    else
         for (size_t i = 0; i < _elems.size(); i++)
-            _elems[i]->draw(_drawPixel);
+            _elems[i]->draw(_draw);
 }
 
 int cppss::HtmlPage::getWidth() const { return _width; }
@@ -130,22 +166,27 @@ int cppss::HtmlPage::getStartX() const { return _startX; }
 int cppss::HtmlPage::getStartY() const { return _startY; }
 int cppss::HtmlPage::getHoverX() const { return _hoverX; }
 int cppss::HtmlPage::getHoverY() const { return _hoverY; }
-cppss::HtmlElem * cppss::HtmlPage::getHead() const { return _head; }
 
-std::ostream & cppss::operator<<(std::ostream & os, const HtmlPage & htmlPage) {
+cppss::HtmlElem * cppss::HtmlPage::getHead() const { return _elems.back(); }
+const std::map<std::string, cppss::CssElem> & cppss::HtmlPage::getSelectors() const { return _selectors; }
+
+std::ostream & cppss::operator<<(std::ostream & os, const HtmlPage & HtmlPage) {
+
+    std::string indent = "  ";
 
     os << "<!DOCTYPE html>" << std::endl;
     os << "<html>" << std::endl;
 
-    os << "<head>" << std::endl;
-    // styles
-    os << "</head>" << std::endl; 
-
-    os << "<body>" << std::endl;
-    if (htmlPage.getHead())
-        os << *htmlPage.getHead();
-    os << "</body>" << std::endl;
-
+    os << indent << "<head>" << std::endl;
+    os << indent << indent << "<style>" << std::endl;
+    for (const auto & it : HtmlPage.getSelectors())
+        os << it.second;
+    os << indent << indent << "</style>" << std::endl;
+    os << indent << "</head>" << std::endl;
+    os << indent << "<body>" << std::endl;
+    if (HtmlPage.getHead())
+        os << *HtmlPage.getHead();
+    os << indent << "</body>" << std::endl;
     os << "</html>" << std::endl;
 
     return os;

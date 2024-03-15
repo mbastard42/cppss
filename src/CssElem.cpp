@@ -1,35 +1,52 @@
 #include "../inc/cppss.hpp"
 
-cppss::CssElem::CssElem() {
+cppss::CssElem::CssElem() { init(); }
+
+cppss::CssElem::CssElem(const std::string & selector) { 
     
+    init();
+    _selector = selector;
 }
 
-cppss::CssElem::CssElem(const CssElem & cssElem) { *this = cssElem; }
+cppss::CssElem::CssElem(const std::string & selector, std::string params) {
 
-cppss::CssElem::~CssElem() {
-    
+    init();
+    _selector = selector;
+    (void)params;
 }
 
-const cppss::CssElem & cppss::CssElem::operator=(const CssElem & cssElem) {
+cppss::CssElem::CssElem(const CssElem & CssElem) { *this = CssElem; }
+
+cppss::CssElem::~CssElem() {}
+
+const cppss::CssElem & cppss::CssElem::operator=(const CssElem & CssElem) {
     
-    _name = cssElem._name;
+    _selector = CssElem._selector;
     
     return *this;
 }
 
-void cppss::CssElem::merge(const CssElem & cssElem) {
+void cppss::CssElem::init() {
 
-    (void)cssElem;   
+    _selector = "";
 }
 
-const std::string cppss::CssElem::getName() const {
-    
-    return _name;
+void cppss::CssElem::merge(const CssElem & CssElem) {
+
+    (void)CssElem;   
 }
 
-std::ostream & cppss::operator<<(std::ostream & os, const cppss::CssElem & elem) {
+void cppss::CssElem::setSelector(const std::string & selector) { _selector = selector; }
+
+const std::string cppss::CssElem::getSelector() const { return _selector; }
+
+std::ostream & cppss::operator<<(std::ostream & os, const cppss::CssElem & CssElem) {
     
-    os << elem.getName();
+    std::string indent = "  ";
+
+    os << indent << indent << indent << CssElem.getSelector() << " {" << std::endl;
+
+    os << indent << indent << indent  << "}" << std::endl;
     
     return os;
 }
