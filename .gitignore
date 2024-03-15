@@ -33,3 +33,5 @@
 
 log.log
 .vscode
+.obj
+bin
