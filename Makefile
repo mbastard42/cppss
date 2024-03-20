@@ -11,9 +11,9 @@ SDIR	:=	src/
 COMP	:=	o
 ODIR	:=	.obj/
 #	                                          [  COMPILER  ] =======================================	#
-CC		:=	c++
+CC		:=	c++ -std=c++20
 CFLG	:=	-Wall -Wextra -Werror -fsanitize=address
-LFLG	:=	-Llib/raylib -lraylib
+LFLG	:=	-Lraylib -lraylib
 #																										#
 #	============================================================================== [  MAKEFILE UTILS	#
 #																										#

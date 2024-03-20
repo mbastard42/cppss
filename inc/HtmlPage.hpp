@@ -2,11 +2,13 @@
 
 #include <map>
 #include <string>
+#include <fstream>
 #include <iostream>
 #include <functional>
 
 #include "CssElem.hpp"
 #include "HtmlElem.hpp"
+#include "tags/tags.hpp"
 
 namespace cppss {
 

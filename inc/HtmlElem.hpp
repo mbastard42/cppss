@@ -18,7 +18,8 @@ namespace cppss {
         HtmlElem                    *_next, *_prev, *_child, *_parent;
         CssElem                     _style;
         std::string                 _tag;
-        std::vector<std::string>    _selectors;
+        std::string                 _id;
+        std::vector<std::string>    _classes;
 
         //  COPLIEN FORM
 
@@ -43,7 +44,8 @@ namespace cppss {
         public:     const HtmlElem *    getParent() const;
 
         public:     const std::string &                 getTag() const;
-        public:     const std::vector<std::string> &    getSelectors() const;
+        public:     const std::string &                 getId() const;
+        public:     const std::vector<std::string> &    getClasses() const;
     };
     
     std::ostream & operator<<(std::ostream & os, const HtmlElem & elem);

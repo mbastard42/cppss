@@ -1,5 +1,5 @@
 #include "../inc/cppss.hpp"
-#include "../lib/raylib/cpp/raylib-cpp.hpp"
+#include "../raylib/cpp/raylib-cpp.hpp"
 
 void drawingFunctionWrapper(int xpos, int ypos, unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
 
@@ -10,6 +10,11 @@ int main() {
 
     // RWindow window(800, 600, "CPPSS Example");
     // window.SetTargetFPS(60);
+
+    // cppss::CssElem test("test");
+    // test.margin("10px");
+
+    // std::cout << test;
 
     cppss::HtmlPage page(800, 600, drawingFunctionWrapper);
     page.addCssFile("style.css");
@@ -24,7 +29,7 @@ int main() {
                 page.div("id8", "class8"),
             })
         }),
-            
+
         page.div("id5", "class5")
 
     }));

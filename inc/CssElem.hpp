@@ -13,6 +13,8 @@ namespace cppss {
         //  VARIABLES
 
         std::string     _selector;
+        
+        // Margin          _margin;
 
         //  COPLIEN FORM
 
@@ -26,7 +28,7 @@ namespace cppss {
 
         //  METHODS
 
-        private:    void    init();
+        private:    void    _init();
         public:     void    merge(const CssElem & elem);
 
         //  SETTERS

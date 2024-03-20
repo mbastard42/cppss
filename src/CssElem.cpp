@@ -1,18 +1,18 @@
 #include "../inc/cppss.hpp"
 
-cppss::CssElem::CssElem() { init(); }
+cppss::CssElem::CssElem() { _init(); }
 
 cppss::CssElem::CssElem(const std::string & selector) { 
     
-    init();
+    _init();
     _selector = selector;
 }
 
-cppss::CssElem::CssElem(const std::string & selector, std::string params) {
+cppss::CssElem::CssElem(const std::string & selector, std::string properties) {
 
-    init();
+    _init();
     _selector = selector;
-    (void)params;
+    (void)properties;
 }
 
 cppss::CssElem::CssElem(const CssElem & CssElem) { *this = CssElem; }
@@ -26,7 +26,7 @@ const cppss::CssElem & cppss::CssElem::operator=(const CssElem & CssElem) {
     return *this;
 }
 
-void cppss::CssElem::init() {
+void cppss::CssElem::_init() {
 
     _selector = "";
 }

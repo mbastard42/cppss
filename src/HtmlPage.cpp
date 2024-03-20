@@ -118,7 +118,7 @@ void cppss::HtmlPage::body(HtmlElem * head) { _elems.push_back(new HtmlElem(*hea
 
 cppss::HtmlElem * cppss::HtmlPage::div(std::string id, std::string classes, std::vector<HtmlElem *> elems) {
     
-    _elems.push_back(new HtmlElem("div", id, classes, elems));
+    _elems.push_back(new Div(id, classes, elems));
     return _elems.back();
 }
 

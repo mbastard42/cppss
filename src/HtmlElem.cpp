@@ -6,13 +6,13 @@ cppss::HtmlElem::HtmlElem(std::string tag, std::string id, std::string classes, 
 
     init();
     _tag = tag;
-    _selectors.push_back("#" + ((id.find(' ') != std::string::npos) ? id.substr(0, id.find(' ')) : id));
+    _id = "#" + ((id.find(' ') != std::string::npos) ? id.substr(0, id.find(' ')) : id);
 
     for (std::string classe = classes; !classe.empty();) {
 
         std::string::size_type space = classe.find(' ');
         if (classe.substr(0, space).size())
-            _selectors.push_back("." + classe.substr(0, (space != std::string::npos) ? space : classe.size()));
+            _classes.push_back("." + classe.substr(0, (space != std::string::npos) ? space : classe.size()));
         classe.erase(0, (space != std::string::npos) ? space + 1 : classe.size());
     }
     
@@ -30,20 +30,32 @@ cppss::HtmlElem::HtmlElem(std::string tag, std::string id, std::string classes, 
     }
 }
 
-cppss::HtmlElem::HtmlElem(const HtmlElem & elem) { *this = elem; }
-
-cppss::HtmlElem::~HtmlElem() {}
-
-const cppss::HtmlElem & cppss::HtmlElem::operator=(const HtmlElem & elem) {
+cppss::HtmlElem::HtmlElem(const HtmlElem & elem) { 
     
     _tag = elem._tag;
+    _id = elem._id;
     _next = elem._next;
     _prev = elem._prev;
     _child = elem._child;
     _parent = elem._parent;
 
-    for (size_t i = 0; i < elem._selectors.size(); i++)
-        _selectors.push_back(elem._selectors[i]);
+    for (size_t i = 0; i < elem._classes.size(); i++)
+        _classes.push_back(elem._classes[i]);
+}
+
+cppss::HtmlElem::~HtmlElem() {}
+
+const cppss::HtmlElem & cppss::HtmlElem::operator=(const HtmlElem & elem) {
+
+    _tag = elem._tag;
+    _id = elem._id;
+    _next = elem._next;
+    _prev = elem._prev;
+    _child = elem._child;
+    _parent = elem._parent;
+
+    for (size_t i = 0; i < elem._classes.size(); i++)
+        _classes.push_back(elem._classes[i]);
 
     return *this;
 }
@@ -70,7 +82,8 @@ void cppss::HtmlElem::draw(DrawingFunction drawPixel) const {
 }
 
 const std::string & cppss::HtmlElem::getTag() const { return _tag; }
-const std::vector<std::string> & cppss::HtmlElem::getSelectors() const { return _selectors; }
+const std::string & cppss::HtmlElem::getId() const { return _id; }
+const std::vector<std::string> & cppss::HtmlElem::getClasses() const { return _classes; }
 
 const cppss::HtmlElem * cppss::HtmlElem::getNext() const { return _next; }
 const cppss::HtmlElem * cppss::HtmlElem::getPrev() const { return _prev; }
@@ -85,17 +98,27 @@ std::ostream & cppss::operator<<(std::ostream & os, const HtmlElem & elem) {
     for (int i = 0; i <= depth; i++)
         indent += "  ";
 
-    std::string id = elem.getSelectors().front();
-    os << indent << "<" << elem.getTag() << " id=\"" << id.erase(0, 1) << "\" class=\"";
+    os << indent << "<" << elem.getTag();
+    
+    std::string id = elem.getId();
+    if (id.size() > 1)
+        os << " id=\"" << id.erase(0, 1) << "\"";
 
-    for (size_t i = 1; i < elem.getSelectors().size(); i++) {
+    if (elem.getClasses().size())
+        os << " class=\"";
 
-        std::string classe = elem.getSelectors()[i];
+    for (size_t i = 0; i < elem.getClasses().size(); i++) {
+
+        std::string classe = elem.getClasses()[i];
         os << classe.erase(0, 1);
-        if (i < elem.getSelectors().size() - 1)
+        if (i < elem.getClasses().size() - 1)
             os << " ";
     }
-    os << "\">" << std::endl;
+
+    if (elem.getClasses().size())
+        os << "\"";
+
+    os << ">" << std::endl;
     
     if (elem.getChild()) {
 
